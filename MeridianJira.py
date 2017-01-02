@@ -94,7 +94,10 @@ class Jira_committer:
         for i in range(0, len(superList.subtasks)):
             listItem = superList.subtasks[i]
             fileReader.print_item_content(listItem.parent)
-            issue = self.create_issue_with_fields_iphone(superList.projectIdentifier,listItem.parent.name,listItem.parent.description, listItem.parent.asignee, superList.costCenter, listItem.parent.time)
+            issueType = 'Task'
+            if len(listItem.subtasks) > 0:
+                issueType = 'Story'
+            issue = self.create_issue_with_fields_iphone(superList.projectIdentifier,listItem.parent.name,listItem.parent.description, listItem.parent.asignee, superList.costCenter, listItem.parent.time, issueType)
             for item in listItem.subtasks:
                 fileReader.print_item_content(item)
                 self.create_issue_with_fields_subtask_iphone(superList.projectIdentifier,issue.key, item.name, item.description, item.time,item.asignee, superList.costCenter)
@@ -188,14 +191,14 @@ class Jira_committer:
         issue=self.authed_jira.create_issue(fields=fields_issue)
         print 'issue.....', issue
 
-    def create_issue_with_fields_iphone(self, projectIdentifier, summary, description, asignee, costCenterId, time):
+    def create_issue_with_fields_iphone(self, projectIdentifier, summary, description, asignee, costCenterId, time, issueType):
 
         fields_issue = {'project': {'key': projectIdentifier},
                 'summary':summary,
                 'description':description,
                 'environment':'iOS-iPhone',
                 'assignee':{'name':asignee},
-                'issuetype':{'name':'Story'},
+                'issuetype':{'name':issueType},
                 'customfield_10800':{'id':costCenterId},
                 'priority':{'name':'Major'},
                 'timetracking':{'originalEstimate':time,'remainingEstimate':time}}
